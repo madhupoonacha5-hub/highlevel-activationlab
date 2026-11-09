@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="An independent simulation of first-90-day customer activation and experimentation for HighLevel.">
+<title>HighLevel Activation Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#090e1c;--card:#111a2d;--line:#293654;--muted:#aab9d3;--ink:#f3f7ff;--teal:#71eed1;--blue:#a0baff;--warn:#ffd28b;--red:#ffa6a9}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#1c2c51,transparent 48%),var(--bg);color:var(--ink);font:15px/1.55 system-ui,sans-serif}main{max-width:1250px;margin:auto;padding:26px clamp(16px,4vw,55px) 45px}header, .controls,.panelhead,.rowhead,footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-weight:750;letter-spacing:.05em}.logo{display:inline-grid;place-items:center;width:30px;height:30px;background:var(--teal);color:#081923;border-radius:8px;margin-right:8px}.eyebrow,.label{font-size:.72rem;font-weight:750;letter-spacing:.13em;text-transform:uppercase;color:var(--teal)}.tag{border:1px solid var(--line);border-radius:20px;padding:4px 10px;color:var(--muted);font-size:.76rem;white-space:nowrap}.hero{margin:36px 0 22px}.hero h1{font-size:clamp(2.4rem,6vw,4.7rem);letter-spacing:-.065em;line-height:1.02;margin:8px 0 14px}.hero p{max-width:670px;font-size:1.05rem;color:var(--muted);margin:0}.controls,.panel,.metric,.timeline{background:var(--card);border:1px solid var(--line);border-radius:15px}.controls{padding:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,select{border:1px solid var(--line);border-radius:8px;background:#182440;color:var(--ink);font:inherit;font-size:.86rem;padding:8px 12px}button{cursor:pointer;font-weight:700}button.primary{background:var(--teal);color:#071a22;border-color:transparent}button:disabled{opacity:.48;cursor:default}:focus-visible{outline:3px solid var(--blue);outline-offset:3px}.timeline{padding:14px;margin:14px 0}.timeline ol{list-style:none;display:grid;grid-template-columns:repeat(7,1fr);padding:0;gap:7px;margin:10px 0 0}.timeline li{font-size:.78rem;padding:6px 7px;border-top:3px solid var(--line);color:var(--muted)}.timeline li.done{border-color:#409c92}.timeline li.current{border-color:var(--teal);color:var(--ink);background:#1d3447}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric,.panel{padding:16px}.metric strong{display:block;font-size:1.8rem;letter-spacing:-.045em;margin:3px 0}.muted,small{color:var(--muted)}.grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:14px}.panel{min-width:0}.wide{grid-column:1/-1}h2,h3,p{margin:0 0 8px}h2{font-size:1.05rem}h3{font-size:.96rem}.narrative{font-size:1.32rem;line-height:1.3;letter-spacing:-.025em;margin:6px 0 10px}.log{list-style:none;margin:12px 0 0;padding:0;max-height:202px;overflow:auto}.log li,.play,.brief{border-top:1px solid var(--line);padding:9px 0}.log b{color:var(--blue);margin-right:8px}.pills{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.green{color:var(--teal)}.amber{color:var(--warn)}.red{color:var(--red)}.table{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:8px;border-bottom:1px solid var(--line);font-size:.84rem;white-space:nowrap}th{color:var(--muted)}details{border-top:1px solid var(--line);padding:9px 0}summary{cursor:pointer;color:var(--blue)}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1224;padding:12px;border-radius:8px;color:#c4dbff;font-size:.76rem}.bar{height:6px;border-radius:10px;background:#263350;margin-top:5px;overflow:hidden}.bar span{display:block;height:100%;background:var(--teal)}.bar.control span{background:var(--blue)}a{color:var(--blue)}footer{margin-top:18px;font-size:.77rem;color:var(--muted)}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}@media(max-width:780px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.timeline ol{grid-template-columns:repeat(4,1fr)}}@media(max-width:420px){.timeline ol{grid-template-columns:repeat(3,1fr)}.metric,.panel{padding:12px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand"><span class="logo" aria-hidden="true">↗</span> ACTIVATION LAB</div><span class="tag">Independent candidate demo · Synthetic data</span></header>
+<section class="hero"><div class="eyebrow">HighLevel · Customer Growth &amp; Activation</div><h1>From trial to first value.</h1><p>Replay 90 days of customer growth. See which accounts need help, how the trial handoff works, and which plays earn a rollout.</p></section>
+<div class="controls">
+<div class="actions"><button id="run" class="primary">▶ Run 90-day simulation</button><button id="pause" disabled>Pause</button><button id="finish" disabled>Jump to decision</button></div>
+<div class="actions"><label for="scenario" class="label">Scenario</label><select id="scenario"><option value="base">Executive replay</option><option value="integrity">Broken holdout allocation</option><option value="reliability">Duplicate, late &amp; opt-out events</option></select></div>
+</div>
+<section class="timeline" aria-label="Replay timeline"><div class="rowhead"><span class="label">Journey timeline</span><span id="day" class="tag">Ready to run</span></div><ol id="timeline"></ol></section>
+<div id="announce" class="sr" role="status"></div>
+<section id="metrics" class="metrics" aria-label="Key metrics"></section>
+<div class="grid">
+<section class="panel"><div class="label">Executive replay</div><h2 id="headline" class="narrative"></h2><p id="story" class="muted"></p><ul id="log" class="log" aria-label="Decision log"></ul></section>
+<section class="panel"><div class="panelhead"><h2>Account evidence</h2><select id="account" aria-label="Inspect account"></select></div><div id="accountDetails"></div></section>
+<section class="panel wide"><div class="panelhead"><h2>Silent paid account queue</h2><span class="tag">Live query · Actionable cases first</span></div><div id="queue" class="table"></div></section>
+<section class="panel"><h2>Experiment readout</h2><div id="experiments"></div></section>
+<section class="panel"><h2>Support AI &amp; expansion</h2><div id="quality"></div></section>
+<section class="panel wide"><div class="panelhead"><h2>Inspect evidence</h2><div class="actions"><button id="download" disabled>Download outcome CSV</button><button id="audit" disabled>Download audit JSON</button></div></div>
+<details><summary>Eligibility SQL and queue rules</summary><pre id="sql"></pre></details>
+<details><summary>Experiment rules and data boundaries</summary><p class="muted">Synthetic enrollment uses one subscribing account per randomization unit. The two plays are mutually exclusive. The control receives the existing experience. Outcomes include all assigned accounts, including unreached treatment accounts. Each play has a 14-day outcome window and a Day 90 decision. The demo uses an approximate 95% interval for the difference in proportions and a two-sided 1% assignment check for the planned 50/50 split. Scale requires the lower bound to clear the minimum lift and opt-outs to stay within +1 percentage point. A failed assignment check blocks the decision.</p><p class="muted">Product events, Trial Experience, subscription, Implementation, support AI and billing are simulated feeds. The outreach adapter writes decisions to the audit ledger. It does not send email or SMS. Proposed intake placement, data contracts and funnel definitions would be validated with HighLevel.</p></details>
+<details><summary>Source references and deployment</summary><p class="muted">Upload this file as <code>index.html</code> at the root of a GitHub Pages publishing branch. Everything runs locally in the browser.</p><p><a href="https://help.gohighlevel.com/support/solutions/articles/155000004539-a2p-campaign-registration-step-by-step-guide-and-faqs">LC Phone A2P</a> · <a href="https://help.gohighlevel.com/support/solutions/articles/48001213216-regulatory-bundle-and-address-creation-for-sub-accounts">Regulatory bundles</a> · <a href="https://help.gohighlevel.com/support/solutions/articles/48001226115">LC Email domains</a> · <a href="https://help.gohighlevel.com/support/solutions/articles/155000005436-subaccount-launchpad">Launchpad</a> · <a href="https://help.gohighlevel.com/support/solutions/articles/155000002095">Wallets and rebilling</a></p></details>
+</section>
+</div>
+<footer><span>Designed by Madhu Poonacha · Customer Growth &amp; Activation proposal</span><span>Demonstration only · No live connections or sends</span></footer>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const stages = [
+  [0,"Trial intake","Capture the customer’s first goal","The proposed micro-intake captures the goal, location and channel. Trial Experience confirms it after the first conversation."],
+  [3,"Paid conversion","Turn trial context into an Implementation handoff","Paid conversion enrolls eligible trial attendees. A handoff brief combines the intake, product evidence and advisor confirmation."],
+  [7,"Silent risk","Separate customer intent from channel readiness","The queue evaluates paid accounts with overdue milestones and no recent progress. External approvals and DNS dependencies get different actions."],
+  [12,"First value","Stop outreach when the customer progresses","An attended session, verified channel readiness, and the first real lead-to-booking event update the account scorecard and suppress scheduled nudges."],
+  [30,"AI quality","Containment rose. Did the customer progress?","Compare verified resolution, same-intent return, activation and satisfaction by support experience."],
+  [60,"Expansion","Offer expansion after repeat value","Eligible accounts outside account management enter the proposed offer queue after repeated qualifying usage."],
+  [90,"Decision","Decide which plays earn rollout","Mature outcomes are calculated from assigned accounts. Data integrity, confidence bounds and opt-outs determine the decision."]
+];
+const people = [
+  {id:"HL-1042",name:"Northstar Dental Growth",location:"Austin",goal:"Turn inbound leads into booked appointments",channel:"SMS",tier:297,usage:180,rebill:215,trial:true,managed:false,risk:3},
+  {id:"HL-1088",name:"Cedar Studio",location:"Portland",goal:"Launch branded lead follow-up",channel:"Branded email",tier:297,usage:90,rebill:105,trial:false,managed:false,risk:2},
+  {id:"HL-1120",name:"Brightline Fitness",location:"Denver",goal:"Convert web leads into intro sessions",channel:"Web",tier:97,usage:45,rebill:52,trial:false,managed:false,risk:3},
+  {id:"HL-1194",name:"Juniper Local",location:"Phoenix",goal:"Automate new client bookings",channel:"SMS",tier:497,usage:210,rebill:270,trial:false,managed:false,risk:3},
+  {id:"HL-1247",name:"Mosaic Growth Partners",location:"Chicago",goal:"Roll out Conversation AI to another location",channel:"AI",tier:497,usage:350,rebill:430,trial:false,managed:false,risk:1}
+];
+const sql = `-- :day is replay day. This reference query mirrors the browser predicate.
+WITH eligible AS (
+  SELECT id, name, blocker, blocker_owner, risk,
+         3 * monthly_net_subscription + forecast_90d_highlevel_usage AS value_90d
+  FROM account_state
+  WHERE paid = 1 AND cs_engaged = 0 AND first_value = 0
+    AND managed = 0 AND opted_out = 0
+    AND due_day <= :day AND last_progress_day <= :day - 3
+)
+SELECT *, CASE WHEN blocker_owner = 'Advisor' THEN 1 ELSE 0 END AS actionable
+FROM eligible
+ORDER BY actionable DESC, risk DESC, value_90d DESC, id;`;
+const expectedValue = a => 3*a.tier+a.usage;
+function queueFor(accounts, day){
+  return accounts.filter(a=>a.paid&&!a.engaged&&!a.value&&!a.managed&&!a.optOut&&a.due<=day&&a.progress<=day-3)
+    .sort((a,b)=>Number(b.owner==="Advisor")-Number(a.owner==="Advisor")||b.risk-a.risk||expectedValue(b)-expectedValue(a)||a.id.localeCompare(b.id));
+}
+function random(seed){
+  return () => {
+    seed = (Math.imul(seed,1664525)+1013904223)>>>0;
+    return seed/4294967296;
+  };
+}
+function enroll(scenario){
+  const rng=random(9017);
+  return ["handoff","rescue"].flatMap(play=>{
+    const assignment=Array.from({length:2400},(_,i)=>i<(scenario==="integrity"&&play==="handoff"?1510:1200)?"Treatment":"Control");
+    for(let i=assignment.length-1;i>0;i--){
+      const j=Math.floor(rng()*(i+1));
+      [assignment[i],assignment[j]]=[assignment[j],assignment[i]];
+    }
+    return assignment.map((arm,i)=>{
+      const treatment=arm==="Treatment", handoff=play==="handoff";
+      const enrolled=handoff?3+i%24:7+i%24;
+      const success=rng()<(handoff?(treatment?.41:.28):(treatment?.254:.25));
+      const opened=rng()<(treatment?.56:.33);
+      const optOut=rng()<(treatment?.013:.011);
+      return {id:(handoff?"H":"R")+"-"+String(i+1).padStart(4,"0"),play,arm,enrolled,mature:enrolled+14,
+        outcomeDay:success?enrolled+1+Math.floor(rng()*14):null,opened,optOut};
+    });
+  });
+}
+function measure(rows,play,day){
+  const cohort=rows.filter(r=>r.play===play&&r.enrolled<=day);
+  const mature=cohort.filter(r=>r.mature<=day);
+  const arm=name=>{
+    const group=mature.filter(r=>r.arm===name);
+    const wins=group.filter(r=>r.outcomeDay!==null&&r.outcomeDay<=day).length;
+    const n=group.length;
+    return {n,wins,rate:n?wins/n:0,opened:n?group.filter(r=>r.opened).length/n:0,optOut:n?group.filter(r=>r.optOut).length/n:0};
+  };
+  const t=arm("Treatment"),c=arm("Control");
+  const assignedT=cohort.filter(r=>r.arm==="Treatment").length;
+  const z=cohort.length?(2*assignedT-cohort.length)/Math.sqrt(cohort.length):0;
+  const lift=t.rate-c.rate;
+  const se=t.n&&c.n?Math.sqrt(t.rate*(1-t.rate)/t.n+c.rate*(1-c.rate)/c.n):0;
+  const low=lift-1.96*se,high=lift+1.96*se,min=play==="handoff"?.05:.03;
+  let decision="Collecting outcomes";
+  if(day===90){
+    if(Math.abs(z)>2.576||!t.n||!c.n) decision="Investigate assignment";
+    else if(t.optOut-c.optOut>.01) decision="Stop · opt-out guardrail";
+    else if(low>=min) decision="Scale pilot";
+    else decision="Retire play";
+  }
+  return {t,c,assignedT,assigned:cohort.length,z,lift,low,high,min,decision};
+}
+function initial(scenario){
+  return {scenario,step:-1,day:0,rows:enroll(scenario),events:[],seen:new Set(),accountState:people.map(p=>({...p,paid:false,engaged:false,value:false,ready:false,live:false,optOut:false,progress:0,due:7,blocker:"Awaiting setup",owner:"Advisor",channelAt:-1,pending:null,repeat:0}))};
+}
+function record(s,account,type,note){s.events.push({day:s.day,account,type,note});}
+function event(s,e){
+  const a=s.accountState.find(account=>account.id===e.account);
+  if(s.seen.has(e.id)){record(s,e.account,"Duplicate ignored",e.id);return;}
+  s.seen.add(e.id);
+  if(e.type==="channel"&&e.at<a.channelAt){record(s,e.account,"Late update ignored",e.id+" · newer channel state retained");return;}
+  switch(e.type){
+    case "paid": a.paid=true;break;
+    case "channel": a.channelAt=e.at;a.ready=e.ready;a.blocker=e.blocker;a.owner=e.owner;if(e.ready)a.progress=s.day;break;
+    case "attended": a.engaged=true;a.progress=s.day;break;
+    case "lead": if(a.ready){a.live=true;a.progress=s.day;}break;
+    case "booking": if(a.live){a.value=true;a.progress=s.day;}break;
+    case "optout": a.optOut=true;break;
+    case "nudge": if(!a.pending&&!a.optOut&&!a.value&&!a.engaged) a.pending=e.note;break;
+    case "repeat": a.repeat=e.count;break;
+  }
+  record(s,e.account,e.type,e.note);
+  if(a.pending&&(a.optOut||a.engaged||a.value)){
+    record(s,a.id,"Nudge suppressed",a.optOut?"Opt-out recorded":"Customer progressed");
+    a.pending=null;
+  }
+}
+function advance(s){
+  s.step++;
+  s.day=stages[s.step][0];
+  const apply=(id,account,type,note,fields={})=>event(s,{id,account,type,note,at:s.day,...fields});
+  const [north,cedar,bright,juniper,mosaic]=people.map(a=>a.id);
+  switch(s.step){
+    case 0:
+      apply("intake",north,"intake","Goal, location and SMS preference captured in the proposed intake");
+      apply("trial",north,"trial attended","Advisor confirmed goal and first location");
+      break;
+    case 1:
+      people.forEach(a=>apply("paid-"+a.id,a.id,"paid","Subscription converted to paid"));
+      apply("snapshot",north,"snapshot","Snapshot loaded · channel evidence still required");
+      apply("north-pending",north,"channel","LC Phone · A2P campaign pending",{ready:false,blocker:"LC Phone · A2P campaign pending",owner:"External approval"});
+      apply("brief",north,"handoff","Trial brief generated · Implementation slot offered");
+      break;
+    case 2:
+      apply("cedar-dns",cedar,"channel","LC Email · branded sending DNS pending",{ready:false,blocker:"LC Email · branded DNS pending",owner:"Customer DNS admin"});
+      apply("bright-error",bright,"channel","Missing calendar mapping",{ready:false,blocker:"Calendar mapping missing",owner:"Advisor"});
+      apply("juniper-bundle",juniper,"channel","International client location needs approved number bundle",{ready:false,blocker:"LC Phone · number bundle pending",owner:"External approval"});
+      apply("mosaic-use",mosaic,"channel","AI rollout readiness verified",{ready:true,blocker:"Ready",owner:"Digital"});
+      apply("nudge-north",north,"nudge","Validate your booking calendar while A2P approval is pending");
+      apply("nudge-bright",bright,"nudge","Reconnect your booking calendar");
+      record(s,north,"SMS launch reminder skipped","Pending A2P approval · route to calendar validation");
+      if(s.scenario==="reliability") apply("nudge-bright",bright,"nudge","Reconnect your booking calendar");
+      break;
+    case 3:
+      apply("north-booked",north,"implementation booked","Implementation appointment booked · attendance still required");
+      apply("north-attended",north,"attended","Implementation attended · prior trial context retained");
+      apply("north-ready",north,"channel","A2P approved and number linked",{ready:true,blocker:"Ready",owner:"Digital"});
+      if(s.scenario==="reliability"){
+        apply("north-stale",north,"channel","Delayed pending state",{at:4,ready:false,blocker:"A2P pending",owner:"External approval"});
+        apply("bright-out",bright,"optout","Customer opted out before the pending nudge");
+      }
+      apply("north-lead",north,"lead","Real lead received a delivered response");
+      apply("north-booking",north,"booking","First attributable prospect booking verified");
+      break;
+    case 4: record(s,"Support cohort","Review setup intent","Higher containment coincides with lower verified resolution and activation");break;
+    case 5:
+      apply("mosaic-repeat",mosaic,"repeat","Four qualifying Conversation AI usage days",{count:4});
+      if(s.accountState.some(expansionEligible))record(s,mosaic,"Expansion eligible","Unmanaged agency with repeated qualifying usage and an eligible target location");
+      break;
+    case 6:
+      ["handoff","rescue"].forEach(p=>{const m=measure(s.rows,p,s.day);record(s,p,m.decision,"Lift "+pp(m.lift)+" · lower bound "+pp(m.low));});
+      break;
+  }
+}
+const expansionEligible=a=>a.paid&&!a.managed&&!a.optOut&&a.channel==="AI"&&a.repeat>=3;
+const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n);
+const pct=n=>(100*n).toFixed(1)+"%";
+const pp=n=>(n>0?"+":"")+(100*n).toFixed(1)+" pp";
+const num=n=>n.toLocaleString("en-US");
+let state=initial("base"), timer=null, paused=false;
+const support=[
+  {name:"Reference",n:400,contained:260,resolved:220,repeat:48,activated:144,responses:120,positive:102},
+  {name:"New routing",n:400,contained:320,resolved:204,repeat:72,activated:116,responses:100,positive:77}
+];
+function renderAccount(){
+  const a=state.accountState.find(account=>account.id===$("account").value)||state.accountState[0];
+  const milestone=(name,done,due)=>'<span class="tag '+(done?"green":state.day>=due?"red":"")+'">'+name+' · '+(done?"Verified":state.day>=due?"Due":"Pending")+'</span>';
+  const brief=a.trial&&state.step>=0?'<div class="brief"><small>Customer supplied</small><p>'+a.goal+' · '+a.location+' · '+a.channel+'</p><small>Product observed</small><p>'+(state.step>=1?'Snapshot loaded · '+a.blocker:'Waiting for setup evidence')+'</p><small>Advisor confirmed</small><p>Goal and launch location'+(state.step>=1?' · Implementation slot offered':'')+'</p></div>':'';
+  $("accountDetails").innerHTML='<p><strong>'+a.name+'</strong> <small>'+a.id+'</small></p><p class="muted">'+a.goal+'</p><div class="pills">'+milestone("Ready",a.ready,a.due)+milestone("Live",a.live,a.due+3)+milestone("Value",a.value,a.due+7)+'</div><p>'+a.blocker+' <small>· '+a.owner+'</small></p><p><strong>'+money(expectedValue(a))+'</strong> <small>estimated 90-day HighLevel value</small><br><small>'+money(3*a.tier)+' subscription + '+money(a.usage)+' usage and add-ons · '+money(a.rebill)+' illustrative agency client rebilling tracked separately</small></p>'+brief;
+}
+function render(){
+  const step=state.step, stage=stages[step];
+  $("timeline").innerHTML=stages.map(([day,name],i)=>'<li class="'+(i===step?'current':i<step?'done':'')+'"'+(i===step?' aria-current="step"':'')+'>Day '+day+'<br>'+name+'</li>').join("");
+  $("day").textContent=stage?"Day "+state.day+" / 90":"Ready to run";
+  $("headline").textContent=stage?stage[2]:"See the first 90 days in one run";
+  $("story").textContent=stage?stage[3]:"Start the replay to follow trial intake, channel readiness, first value and experiment decisions. The account inspector stays available throughout.";
+  $("announce").textContent=stage?"Day "+state.day+". "+stage[2]:"Simulation ready.";
+  $("log").innerHTML=state.events.slice(-10).reverse().map(e=>'<li><b>Day '+e.day+'</b>'+e.note+' <small>· '+e.account+' · '+e.type+'</small></li>').join("");
+  const queue=queueFor(state.accountState,state.day);
+  const handoff=measure(state.rows,"handoff",state.day),rescue=measure(state.rows,"rescue",state.day);
+  const handoffShown=step>=1&&handoff.t.n&&handoff.c.n;
+  const rescueShown=step>=2&&rescue.t.n&&rescue.c.n;
+  $("metrics").innerHTML=[
+    ["Silent risk",step<2?"—":queue.length,"Inspectable accounts in the queue"],
+    ["Handoff lift",handoffShown?pp(handoff.lift):"—","Implementation attendance · mature arms"],
+    ["Rescue lift",rescueShown?pp(rescue.lift):"—","Verified first value · mature arms"],
+    ["Expansion eligible",step<5?"—":state.accountState.filter(expansionEligible).length,"Unmanaged accounts with repeat usage"]
+  ].map(([label,value,detail])=>'<div class="metric"><div class="label">'+label+'</div><strong>'+value+'</strong><small>'+detail+'</small></div>').join("");
+  $("queue").innerHTML=queue.length?'<table><thead><tr><th>Rank</th><th>Account</th><th>Blocker</th><th>Owner</th><th>Risk</th><th>90-day value</th></tr></thead><tbody>'+queue.map((a,i)=>'<tr><td>'+(i+1)+'</td><td><button data-account="'+a.id+'">'+a.name+'</button></td><td>'+a.blocker+'</td><td>'+a.owner+'</td><td>'+a.risk+'/3</td><td>'+money(expectedValue(a))+'</td></tr>').join("")+'</tbody></table>':'<p class="muted">'+(step<2?"Queue opens on Day 7.":"No accounts currently meet the eligibility rules.")+'</p>';
+  $("experiments").innerHTML=[["Warm handoff",handoff,1],["First-value rescue",rescue,2]].map(([label,m,opens])=>{
+    const visible=step>=opens;
+    const arms=[["Treatment",m.t],["Control",m.c]].map(([name,a],i)=>'<div><small>'+name+' · '+(a.n?pct(a.rate)+' ('+num(a.wins)+'/'+num(a.n)+')':"Awaiting mature outcomes")+'</small><div class="bar '+(i?"control":"")+'"><span style="width:'+100*a.rate+'%"></span></div></div>').join("");
+    const cls=m.decision==="Scale pilot"?"green":step===6?"amber":"";
+    return '<article class="play"><div class="rowhead"><h3>'+label+'</h3><span class="tag '+cls+'">'+(visible?m.decision:"Pending enrollment")+'</span></div>'+(visible?'<small>'+num(m.assigned)+' assigned · '+num(m.assignedT)+' treatment · minimum lift '+pp(m.min)+'</small>'+arms+(step===6?'<p><strong>'+pp(m.lift)+'</strong> <small>95% CI '+pp(m.low)+' to '+pp(m.high)+' · opt-out delta '+pp(m.t.optOut-m.c.optOut)+'</small><br><small>Assignment check z = '+m.z.toFixed(2)+' · outreach opens '+pct(m.t.opened)+' vs '+pct(m.c.opened)+'</small></p>':''):'')+'</article>';
+  }).join("");
+  $("quality").innerHTML=step<4?'<p class="muted">Support review opens on Day 30. Expansion eligibility opens on Day 60.</p>':
+    '<p class="amber"><strong>Review setup-intent routing</strong></p><p class="muted">Containment rose while verified resolution and activation fell. This descriptive comparison uses synthetic support cohorts.</p>'+
+    '<div class="table"><table><thead><tr><th>Outcome</th><th>Reference</th><th>New routing</th></tr></thead><tbody>'+
+    [["Contained",s=>pct(s.contained/s.n)],["Verified resolved",s=>pct(s.resolved/s.n)],["Same-intent return",s=>pct(s.repeat/s.n)],["Activated within 14 days",s=>pct(s.activated/s.n)],["Positive CSAT",s=>pct(s.positive/s.responses)+" ("+s.responses+" replies)"],["CSAT response rate",s=>pct(s.responses/s.n)]].map(([name,calc])=>'<tr><td>'+name+'</td>'+support.map(s=>'<td>'+calc(s)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
+    (step>=5?'<div class="brief"><strong>Expansion candidate · Mosaic Growth Partners</strong><p class="muted">Repeat Conversation AI usage and an eligible location support an offer. This run records eligibility. Revenue lift would require a separate holdout and realized billing outcomes.</p></div>':'');
+  $("pause").disabled=step<0||step===6;
+  $("finish").disabled=step<0||step===6;
+  $("download").disabled=step<0;
+  $("audit").disabled=step<0;
+  $("run").textContent=step<0?"▶ Run 90-day simulation":"↻ Restart simulation";
+  $("pause").textContent=paused?"Resume":"Pause";
+  renderAccount();
+}
+function stopTimer(){clearTimeout(timer);timer=null;}
+function schedule(){
+  stopTimer();
+  if(state.step<6&&!paused)timer=setTimeout(()=>{advance(state);render();schedule();},4400);
+}
+function start(){
+  stopTimer();
+  paused=false;
+  state=initial($("scenario").value);
+  $("account").value=people[0].id;
+  advance(state);
+  render();
+  schedule();
+}
+function save(name,content,type){
+  const url=URL.createObjectURL(new Blob([content],{type}));
+  const link=document.createElement("a");
+  link.href=url;
+  link.download=name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+$("sql").textContent=sql;
+$("account").innerHTML=people.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join("");
+$("account").addEventListener("change",renderAccount);
+$("queue").addEventListener("click",e=>{
+  const button=e.target.closest("[data-account]");
+  if(button){$("account").value=button.dataset.account;renderAccount();$("account").focus();}
+});
+$("run").addEventListener("click",start);
+$("scenario").addEventListener("change",()=>{
+  stopTimer();
+  paused=false;
+  state=initial($("scenario").value);
+  render();
+});
+$("pause").addEventListener("click",()=>{paused=!paused;render();schedule();});
+$("finish").addEventListener("click",()=>{
+  stopTimer();
+  paused=false;
+  while(state.step<6)advance(state);
+  render();
+});
+$("download").addEventListener("click",()=>{
+  const header="account_id,play,arm,enrolled_day,mature_day,mature_as_of_export,observed_outcome_day,opened_by_maturity,opted_out_by_maturity";
+  const rows=state.rows.filter(r=>r.enrolled<=state.day).map(r=>[r.id,r.play,r.arm,r.enrolled,r.mature,r.mature<=state.day,r.outcomeDay!==null&&r.outcomeDay<=state.day?r.outcomeDay:"",r.mature<=state.day?r.opened:"",r.mature<=state.day?r.optOut:""].join(","));
+  save("activation-outcomes.csv",[header,...rows].join("\r\n"),"text/csv");
+});
+$("audit").addEventListener("click",()=>{
+  const decisions=["handoff","rescue"].map(play=>({play,...measure(state.rows,play,state.day)}));
+  save("activation-audit.json",JSON.stringify({version:"1.0",synthetic:true,scenario:state.scenario,day:state.day,events:state.events,queue:queueFor(state.accountState,state.day),decisions},null,2),"application/json");
+});
+render();
+</script>
+</body>
+</html>
